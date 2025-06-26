@@ -277,7 +277,14 @@
         .service-card i { color: var(--accent-color); }
 
         #stats { padding: 5rem 0; background: var(--primary-text); color: var(--primary-bg); }
-        #stats h3 { font-size: 3.5rem; font-weight: 700; background: linear-gradient(90deg, var(--accent-rose), var(--accent-color)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+       #stats h3 { 
+    font-size: 3.5rem; 
+    font-weight: 700; 
+    background: linear-gradient(90deg, #B3B3B3, var(--accent-color)); 
+    -webkit-background-clip: text; 
+    -webkit-text-fill-color: transparent; 
+}
+
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: center; }
         
         .tech-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 2rem; }
@@ -558,7 +565,10 @@
                     <div class="tech-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/react/react-original.svg" alt="React"><span>React</span></div>
                     <div class="tech-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/premierepro/premierepro-plain.svg" alt="Premiere Pro"><span>Premiere Pro</span></div>
                     <div class="tech-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/aftereffects/aftereffects-plain.svg" alt="After Effects"><span>After Effects</span></div>
-                    <div class="tech-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/figma/figma-original.svg" alt="Figma"><span>Figma</span></div>
+                                        <div class="tech-icon">
+                        <svg class="davinci-svg" role="img" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><title>DaVinci Resolve</title><path d="M14.965 2.227c-2.38-1.34-5.232-1.34-7.612 0L2.388 4.793c-2.38 1.34-3.57 3.94-2.38 6.28l4.08 7.933c1.19 2.34 3.978 3.193 6.358 1.853l4.965-2.566c2.38-1.34 3.57-3.94 2.38-6.28L14.965 2.227zm-3.56 16.546c-1.586.894-3.579.447-4.778-1.106L2.547 9.733c-1.199-1.553-.752-3.733.834-4.627s3.579-.447 4.778 1.106l4.08 7.933c1.199 1.553.752 3.733-.834 4.627zM21.612 4.793l-4.08 7.933c-1.19 2.34-3.978 3.193-6.358 1.853l-.85-.447c1.586-.894 2.033-2.84 1.19-4.627l-4.08-7.933c-1.199-1.553-3.191-2-4.778-1.106l.85.447c2.38 1.34 5.232 1.34 7.612 0l4.965-2.566c2.38-1.34 3.57-3.94 2.38-6.28l1.19 2.227c1.19 2.34.001 4.94-2.38 6.28z"/></svg>
+                        <span>DaVinci Resolve</span>
+                    </div>
                     <div class="tech-icon"><img src="https://cdn.jsdelivr.net/gh/devicons/devicon/icons/nodejs/nodejs-original.svg" alt="Node.js"><span>Node.js</span></div>
                 </div>
             </div>
@@ -636,7 +646,7 @@
     <audio id="pedro-audio" src="assets/music3.mp3"></audio>
     <audio id="about-gif-audio" src="assets/music 2.mp3"></audio>
 
-    <script>
+ <script>
     document.addEventListener('DOMContentLoaded', () => {
 
         // --- Global Elements ---
@@ -750,11 +760,14 @@
         }
         
         function toggleMusic() {
-            const { audio } = allElements;
+            const { audio, pedroAudio, aboutGifAudio } = allElements;
             const isPlaying = !audio.paused;
+
             if (isPlaying) {
                 audio.pause();
             } else {
+                if (!pedroAudio.paused) pedroAudio.pause();
+                if (!aboutGifAudio.paused) aboutGifAudio.pause();
                 audio.play();
             }
             updateMusicUI(!isPlaying);
@@ -769,15 +782,29 @@
         }
         
         function initGifSounds() {
-            const { pedroGifContainer, aboutGifCard, pedroAudio, aboutGifAudio } = allElements;
+            const { pedroGifContainer, aboutGifCard, pedroAudio, aboutGifAudio, audio } = allElements;
             
-            function playSound(audioElement) {
-                audioElement.currentTime = 0;
-                audioElement.play();
+            function playExclusiveSound(soundToPlay) {
+                // Pause all other audio sources
+                [audio, pedroAudio, aboutGifAudio].forEach(sound => {
+                    if(sound !== soundToPlay && !sound.paused) {
+                        sound.pause();
+                    }
+                });
+                // Update background music UI if it was paused
+                if (!audio.paused) {
+                    // This case should not happen if logic is right, but as a safeguard
+                } else {
+                     updateMusicUI(false);
+                }
+
+                // Play the requested sound
+                soundToPlay.currentTime = 0;
+                soundToPlay.play();
             }
 
-            pedroGifContainer.addEventListener('click', () => playSound(pedroAudio));
-            aboutGifCard.addEventListener('click', () => playSound(aboutGifAudio));
+            pedroGifContainer.addEventListener('click', () => playExclusiveSound(pedroAudio));
+            aboutGifCard.addEventListener('click', () => playExclusiveSound(aboutGifAudio));
         }
 
         /* #endregion */
